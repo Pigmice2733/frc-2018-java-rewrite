@@ -26,40 +26,35 @@ public class CenterSwitch {
 
         stateStartTime = 0.0;
 
-        // Set drive forward task - how far to drive forward?
-        task = drivetrain.forwardTask(0.0);
+        task = drivetrain.forwardTask(1.5);
     }
 
     public void update() {
         if (state == State.FORWARD) {
             if (task.update()) {
-                // Go to turn state
+                elevator.setTarget(ProfiledElevator.Target.SWITCH);
                 state = State.TURN;
-                task = drivetrain.rotateTask(45);
+                task = drivetrain.rotateTask(40);
             }
         } else if (state == State.TURN) {
-            elevator.setTarget(ProfiledElevator.Target.SWITCH);
             if (task.update()) {
-                // Go to switch state
                 state = State.TO_SWITCH;
-                task = drivetrain.rotateTask(45);
+                task = drivetrain.forwardTask(1.2);
             }
         } else if (state == State.TO_SWITCH) {
             if (task.update()) {
-                // Go to eject state
                 state = State.EJECT;
                 stateStartTime = Timer.getFPGATimestamp();
             }
         } else if (state == State.EJECT) {
             intake.outtake();
-            double stateLength = 3.0;
+            double stateLength = 1.0;
             if (Timer.getFPGATimestamp() - stateStartTime > stateLength) {
                 state = State.REVERSE;
-                task = drivetrain.forwardTask(-2);
+                task = drivetrain.forwardTask(-0.8);
             }
         } else if (state == State.REVERSE) {
             if (task.update()) {
-                // Go to end state
                 state = State.DONE;
             }
         } else {
