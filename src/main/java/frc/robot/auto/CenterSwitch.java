@@ -14,7 +14,6 @@ public class CenterSwitch {
     };
 
     private State state;
-    private State prevState;
     private ProfiledElevator elevator;
     private Intake intake;
     private double stateStartTime;

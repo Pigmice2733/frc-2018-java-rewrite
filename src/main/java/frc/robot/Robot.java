@@ -18,6 +18,7 @@ import frc.robot.components.Drivetrain;
 // import frc.robot.components.ManualElevator;
 import frc.robot.components.ProfiledElevator;
 import frc.robot.auto.Forward;
+import frc.robot.auto.CenterSwitch;
 
 public class Robot extends TimedRobot {
     private Drivetrain drivetrain;
@@ -30,9 +31,10 @@ public class Robot extends TimedRobot {
     private Intake intake;
     private SendableChooser<AutoMode> autoChooser;
     private Forward autoForward;
+    private CenterSwitch autoCenterSwitch;
 
     private enum AutoMode {
-        NONE, FORWARD
+        NONE, FORWARD, CENTER_SWITCH
     }
 
     public void robotInit() {
@@ -67,8 +69,10 @@ public class Robot extends TimedRobot {
         autoChooser = new SendableChooser<AutoMode>();
         autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
         autoChooser.addObject("None", AutoMode.NONE);
+        autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
         SmartDashboard.putData("Autonomous mode chooser", autoChooser);
         autoForward = new Forward(drivetrain);
+        autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
 
         setPeriod(0.02);
     }
@@ -93,6 +97,12 @@ public class Robot extends TimedRobot {
             return;
         }
 
-        autoForward.update();
+        if (autoMode == AutoMode.CENTER_SWITCH) {
+            autoCenterSwitch.update();
+        }
+
+        if (autoMode == AutoMode.FORWARD) {
+            autoForward.update();
+        }
     }
 }
