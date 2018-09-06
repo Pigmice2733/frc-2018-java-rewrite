@@ -33,8 +33,6 @@ public class Intake {
             solenoid.set(DoubleSolenoid.Value.kReverse);
         }
 
-        System.out.println(solenoid.get());
-
         this.leftMotor.set(speed);
         this.rightMotor.set(-speed);
 
