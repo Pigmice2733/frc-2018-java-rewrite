@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
 
         autoChooser = new SendableChooser<AutoMode>();
         autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
-        autoChooser.addDefault("None", AutoMode.NONE);
+        autoChooser.addObject("None", AutoMode.NONE);
         SmartDashboard.putData("Autonomous mode chooser", autoChooser);
         autoForward = new Forward(drivetrain);
 
