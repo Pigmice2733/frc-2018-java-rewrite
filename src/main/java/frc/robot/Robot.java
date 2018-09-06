@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.components.Intake;
 import frc.robot.components.Drivetrain;
+import frc.robot.components.Wrist;
 import frc.robot.components.ManualElevator;
 // import frc.robot.components.ProfiledElevator;
 import frc.robot.auto.Forward;
@@ -26,15 +27,18 @@ public class Robot extends TimedRobot {
     private Joystick operatorJoystick;
     private JoystickButton xboxB;
     private JoystickButton xboxX;
+    private JoystickButton xboxA;
     private ManualElevator elevator;
     // private ProfiledElevator elevator;
     private Intake intake;
+    private Wrist wrist;
+
     private SendableChooser<AutoMode> autoChooser;
     private Forward autoForward;
     // private CenterSwitch autoCenterSwitch;
 
     private enum AutoMode {
-        NONE, FORWARD, CENTER_SWITCH
+        NONE, FORWARD// , CENTER_SWITCH
     }
 
     public void robotInit() {
@@ -57,19 +61,25 @@ public class Robot extends TimedRobot {
 
         AHRS navx = new AHRS(Port.kMXP);
 
+        WPI_TalonSRX wristMotor = new WPI_TalonSRX(8);
+
         drivetrain = new Drivetrain(leftDrive, rightDrive, navx);
         elevator = new ManualElevator(winch, bottomLimit);
         // elevator = new ProfiledElevator(winch, bottomLimit);
         intake = new Intake(leftIntakeMotor, rightIntakeMotor, intakeSolenoid);
+        wrist = new Wrist(wristMotor);
+
         driverJoystick = new Joystick(0);
         operatorJoystick = new Joystick(1);
+
         xboxB = new JoystickButton(operatorJoystick, 2);
         xboxX = new JoystickButton(operatorJoystick, 3);
+        xboxA = new JoystickButton(operatorJoystick, 4);
 
         autoChooser = new SendableChooser<AutoMode>();
         autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
         autoChooser.addObject("None", AutoMode.NONE);
-        autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
+        // autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
         SmartDashboard.putData("Autonomous mode chooser", autoChooser);
         autoForward = new Forward(drivetrain);
         // autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
@@ -77,15 +87,26 @@ public class Robot extends TimedRobot {
         setPeriod(0.02);
     }
 
+    public void autonomousInit() {
+        wrist.resetTop();
+    }
+
     public void teleopPeriodic() {
+        wrist.setTarget(Wrist.Target.UP);
         if (xboxB.get()) {
             intake.intake();
+            wrist.setTarget(Wrist.Target.DOWN);
         } else if (xboxX.get()) {
             intake.outtake();
         }
 
+        if (xboxA.get()) {
+            wrist.setTarget(Wrist.Target.DOWN);
+        }
+
         elevator.setSpeed(operatorJoystick.getY());
 
+        wrist.update();
         intake.update();
         elevator.update();
         drivetrain.arcadeDrive(-driverJoystick.getY(), driverJoystick.getX());

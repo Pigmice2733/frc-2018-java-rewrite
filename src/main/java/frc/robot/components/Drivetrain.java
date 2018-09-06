@@ -1,5 +1,6 @@
 package frc.robot.components;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
@@ -61,6 +62,8 @@ public class Drivetrain {
     private double leftWheelDistance, rightWheelDistance, totalDistance;
 
     public Drivetrain(WPI_TalonSRX leftDrive, WPI_TalonSRX rightDrive, AHRS navx) {
+        leftDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
+        rightDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
         drive = new DifferentialDrive(leftDrive, rightDrive);
         this.leftDrive = leftDrive;
         this.rightDrive = rightDrive;

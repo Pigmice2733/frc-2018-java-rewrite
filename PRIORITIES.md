@@ -2,9 +2,9 @@
 - [x] Drivetrain
 - [~] Drive forward auto?
 - [x] Intake
-- [ ] Elevator
-- [ ] Center Switch Auto
-- [ ] Wrist
+- [~] Elevator
+- [~] Center Switch Auto
+- [~] Wrist
 
 # General Todo
 - Make drivetrain use `update()` style that resets speeds etc?
