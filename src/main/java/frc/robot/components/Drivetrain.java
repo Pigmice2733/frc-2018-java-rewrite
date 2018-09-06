@@ -39,21 +39,19 @@ public class Drivetrain {
 
         public boolean update() {
             double time = Timer.getFPGATimestamp();
-            double currentTarget;
+            final double elapsedTime = time - profileStartTime;
+            final double currentTarget = profile.getPosition(elapsedTime);
             if (type == ProfileTaskType.DRIVE) {
-                currentTarget = profile.getPosition(time - profileStartTime);
-                double targetVelocity = profile.getVelocity(time - profileStartTime);
+                double targetVelocity = profile.getVelocity(elapsedTime);
                 double speed = pidController.calculateOutput(getTotalDistance() - startValue, currentTarget,
                         targetVelocity, 0.0, time);
                 arcadeDrive(speed, 0.0);
             } else {
-                currentTarget = profile.getPosition(time - profileStartTime);
                 double rotation = pidController.calculateOutput(getOrientation() - startValue, currentTarget, 0.0, 0.0,
                         time);
                 arcadeDrive(0.0, rotation);
             }
-            return ((time - profileStartTime) > profile.getDuration()
-                    && (targetEndValue - currentTarget) < (targetEndValue * 0.01));
+            return (elapsedTime > profile.getDuration() && (targetEndValue - currentTarget) < (targetEndValue * 0.01));
         }
     }
 
