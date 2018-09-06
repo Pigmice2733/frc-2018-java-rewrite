@@ -15,10 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.components.Intake;
 import frc.robot.components.Drivetrain;
-// import frc.robot.components.ManualElevator;
-import frc.robot.components.ProfiledElevator;
+import frc.robot.components.ManualElevator;
+// import frc.robot.components.ProfiledElevator;
 import frc.robot.auto.Forward;
-import frc.robot.auto.CenterSwitch;
+// import frc.robot.auto.CenterSwitch;
 
 public class Robot extends TimedRobot {
     private Drivetrain drivetrain;
@@ -26,12 +26,12 @@ public class Robot extends TimedRobot {
     private Joystick operatorJoystick;
     private JoystickButton xboxB;
     private JoystickButton xboxX;
-    // private ManualElevator elevator;
-    private ProfiledElevator elevator;
+    private ManualElevator elevator;
+    // private ProfiledElevator elevator;
     private Intake intake;
     private SendableChooser<AutoMode> autoChooser;
     private Forward autoForward;
-    private CenterSwitch autoCenterSwitch;
+    // private CenterSwitch autoCenterSwitch;
 
     private enum AutoMode {
         NONE, FORWARD, CENTER_SWITCH
@@ -58,8 +58,8 @@ public class Robot extends TimedRobot {
         AHRS navx = new AHRS(Port.kMXP);
 
         drivetrain = new Drivetrain(leftDrive, rightDrive, navx);
-        // elevator = new ManualElevator(winch, bottomLimit);
-        elevator = new ProfiledElevator(winch, bottomLimit);
+        elevator = new ManualElevator(winch, bottomLimit);
+        // elevator = new ProfiledElevator(winch, bottomLimit);
         intake = new Intake(leftIntakeMotor, rightIntakeMotor, intakeSolenoid);
         driverJoystick = new Joystick(0);
         operatorJoystick = new Joystick(1);
@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
         autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
         SmartDashboard.putData("Autonomous mode chooser", autoChooser);
         autoForward = new Forward(drivetrain);
-        autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
+        // autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
 
         setPeriod(0.02);
     }
@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
             intake.outtake();
         }
 
-        // elevator.setSpeed(operatorJoystick.getY());
+        elevator.setSpeed(operatorJoystick.getY());
 
         intake.update();
         elevator.update();
@@ -97,9 +97,9 @@ public class Robot extends TimedRobot {
             return;
         }
 
-        if (autoMode == AutoMode.CENTER_SWITCH) {
-            autoCenterSwitch.update();
-        }
+        // if (autoMode == AutoMode.CENTER_SWITCH) {
+        // autoCenterSwitch.update();
+        // }
 
         if (autoMode == AutoMode.FORWARD) {
             autoForward.update();
