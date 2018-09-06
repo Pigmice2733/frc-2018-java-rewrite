@@ -3,15 +3,20 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.drivetrain.Drivetrain;
-import frc.robot.intake.Intake;
+import frc.robot.components.Intake;
+import frc.robot.components.Drivetrain;
+// import frc.robot.components.ManualElevator;
+import frc.robot.components.ProfiledElevator;
 import frc.robot.auto.Forward;
 
 public class Robot extends TimedRobot {
@@ -20,6 +25,8 @@ public class Robot extends TimedRobot {
     private Joystick operatorJoystick;
     private JoystickButton xboxB;
     private JoystickButton xboxX;
+    // private ManualElevator elevator;
+    private ProfiledElevator elevator;
     private Intake intake;
     private SendableChooser<AutoMode> autoChooser;
     private Forward autoForward;
@@ -43,7 +50,14 @@ public class Robot extends TimedRobot {
 
         DoubleSolenoid intakeSolenoid = new DoubleSolenoid(2, 3);
 
-        drivetrain = new Drivetrain(leftDrive, rightDrive);
+        WPI_TalonSRX winch = new WPI_TalonSRX(6);
+        DigitalInput bottomLimit = new DigitalInput(0);
+
+        AHRS navx = new AHRS(Port.kMXP);
+
+        drivetrain = new Drivetrain(leftDrive, rightDrive, navx);
+        // elevator = new ManualElevator(winch, bottomLimit);
+        elevator = new ProfiledElevator(winch, bottomLimit);
         intake = new Intake(leftIntakeMotor, rightIntakeMotor, intakeSolenoid);
         driverJoystick = new Joystick(0);
         operatorJoystick = new Joystick(1);
@@ -66,7 +80,10 @@ public class Robot extends TimedRobot {
             intake.outtake();
         }
 
-        this.intake.update();
+        // elevator.setSpeed(operatorJoystick.getY());
+
+        intake.update();
+        elevator.update();
         drivetrain.arcadeDrive(-driverJoystick.getY(), driverJoystick.getX());
     }
 

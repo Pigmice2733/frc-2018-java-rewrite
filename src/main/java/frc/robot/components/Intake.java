@@ -1,4 +1,4 @@
-package frc.robot.intake;
+package frc.robot.components;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SpeedController;
