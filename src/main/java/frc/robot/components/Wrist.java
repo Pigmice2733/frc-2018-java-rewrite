@@ -36,7 +36,7 @@ public class Wrist {
 
         target = Target.START;
 
-        pidf = new PIDF(new Gains(0.1, 0, 0), new Bounds(-1, 1));
+        pidf = new PIDF(new Gains(0.0009, 0, 0.00005), new Bounds(-1, 1));
     }
 
     public void resetTop() {
@@ -53,6 +53,7 @@ public class Wrist {
 
     public void update() {
         double speed = pidf.calculateOutput(getPosition(), target.value(), Timer.getFPGATimestamp());
-        motor.set(speed);
+
+        motor.set(-speed);
     }
 }

@@ -17,8 +17,8 @@ public class Forward {
             startTime = Timer.getFPGATimestamp();
         }
 
-        if (Timer.getFPGATimestamp() - startTime < 3) {
-            drivetrain.arcadeDrive(0.3, 0);
+        if (Timer.getFPGATimestamp() - startTime < 2) {
+            drivetrain.arcadeDrive(0.5, 0);
         }
     }
 }

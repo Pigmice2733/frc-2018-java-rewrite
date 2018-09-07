@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
     private Drivetrain drivetrain;
     private Joystick driverJoystick;
     private Joystick operatorJoystick;
+    private WPI_TalonSRX winch, wristMotor;
     private JoystickButton xboxB;
     private JoystickButton xboxX;
     private JoystickButton xboxA;
@@ -56,12 +57,12 @@ public class Robot extends TimedRobot {
 
         DoubleSolenoid intakeSolenoid = new DoubleSolenoid(2, 3);
 
-        WPI_TalonSRX winch = new WPI_TalonSRX(6);
+        winch = new WPI_TalonSRX(6);
         DigitalInput bottomLimit = new DigitalInput(0);
 
         AHRS navx = new AHRS(Port.kMXP);
 
-        WPI_TalonSRX wristMotor = new WPI_TalonSRX(8);
+        wristMotor = new WPI_TalonSRX(8);
 
         drivetrain = new Drivetrain(leftDrive, rightDrive, navx);
         elevator = new ManualElevator(winch, bottomLimit);
@@ -80,9 +81,9 @@ public class Robot extends TimedRobot {
         autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
         autoChooser.addObject("None", AutoMode.NONE);
         // autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
-        SmartDashboard.putData("Autonomous mode chooser", autoChooser);
-        autoForward = new Forward(drivetrain);
+        SmartDashboard.putData("Auto Selector", autoChooser);
         // autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
+        autoForward = new Forward(drivetrain);
 
         setPeriod(0.02);
     }
@@ -104,12 +105,17 @@ public class Robot extends TimedRobot {
             wrist.setTarget(Wrist.Target.DOWN);
         }
 
-        elevator.setSpeed(operatorJoystick.getY());
+        elevator.setSpeed(-operatorJoystick.getY());
 
         wrist.update();
         intake.update();
         elevator.update();
         drivetrain.arcadeDrive(-driverJoystick.getY(), driverJoystick.getX());
+    }
+
+    public void testPeriodic() {
+        winch.set(operatorJoystick.getY());
+        wristMotor.set(operatorJoystick.getRawAxis(5) * 0.6);
     }
 
     public void autonomousPeriodic() {

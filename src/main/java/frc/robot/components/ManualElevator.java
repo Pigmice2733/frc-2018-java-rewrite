@@ -20,8 +20,8 @@ public class ManualElevator {
         this.speed = 0;
         winch.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
 
-        speedBounds = new Bounds(-0.3, 0.3);
-        gravityCompensation = 0.1;
+        speedBounds = new Bounds(-0.3, 0.6);
+        gravityCompensation = 0.4;
     }
 
     public void setSpeed(double speed) {
@@ -33,13 +33,13 @@ public class ManualElevator {
     }
 
     public void update() {
-        if (getPosition() > 12.0) {
+        if (getPosition() > 12.0 && speed > 0.0) {
             speed = gravityCompensation;
-        } else if (getPosition() < 1.0) {
+        } else if (getPosition() < 1.0 && speed < 0.0) {
             speed = gravityCompensation;
         }
 
-        winch.set(speed);
+        winch.set(-speed);
 
         if (bottomLimit.get()) {
             winch.setSelectedSensorPosition(0, 0, 0);
