@@ -78,9 +78,9 @@ public class Robot extends TimedRobot {
         xboxA = new JoystickButton(operatorJoystick, 4);
 
         autoChooser = new SendableChooser<AutoMode>();
-        autoChooser.addObject("Drive Forward", AutoMode.FORWARD);
+        autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
         autoChooser.addObject("None", AutoMode.NONE);
-        autoChooser.addDefault("Center Switch", AutoMode.CENTER_SWITCH);
+        autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
         SmartDashboard.putData("Auto Selector", autoChooser);
         autoCenterSwitch = new CenterSwitch(drivetrain/* , elevator, intake */);
         autoForward = new Forward(drivetrain);
@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
 
     public void autonomousInit() {
         wrist.resetTop();
+        wrist.setTarget(Wrist.Target.DOWN);
         autoCenterSwitch.initialize();
     }
 
