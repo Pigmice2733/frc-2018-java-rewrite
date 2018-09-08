@@ -41,47 +41,44 @@ public class Drivetrain {
 
             if (type == ProfileTaskType.DRIVE) {
                 startValue = getTotalDistance();
+                pidController.initialize(startValue, 0.0, 0.0);
             } else {
                 startValue = getOrientation();
+                pidController.initialize(0.0, 0.0, 0.0);
             }
         }
 
         public boolean update() {
             double time = Timer.getFPGATimestamp();
-            final double elapsedTime = time - profileStartTime;
-            System.out.println(elapsedTime);
-            final double currentTarget = profile.getPosition(elapsedTime);
+            double elapsedTime = time - profileStartTime;
+            double currentTarget = profile.getPosition(elapsedTime);
             if (type == ProfileTaskType.DRIVE) {
                 double targetVelocity = profile.getVelocity(elapsedTime);
                 double speed = pidController.calculateOutput(getTotalDistance(), currentTarget, targetVelocity, 0.0,
-                        time);
-                System.out.println((getTotalDistance() - startValue) + " <- current ||| target -> "
-                        + (currentTarget - startValue) + " speed -> " + speed + " target speed -> " + targetVelocity);
+                        elapsedTime);
+                System.out.println("Target pos: " + (currentTarget - startValue) + "  Current pos: "
+                        + (getTotalDistance() - startValue) + "  Target velo: " + targetVelocity + "  Output speed: "
+                        + speed);
                 arcadeDrive(speed, 0.0);
             } else {
                 double rotation = pidController.calculateOutput(getOrientation() - startValue, currentTarget, 0.0, 0.0,
-                        time);
+                        elapsedTime);
                 arcadeDrive(0.0, rotation);
             }
             return (elapsedTime > profile.getDuration() && (targetEndValue - currentTarget) < (targetEndValue * 0.01));
         }
     }
 
-    private WPI_TalonSRX leftDrive, rightDrive;
+    private WPI_TalonSRX rightDrive;
     private DifferentialDrive drive;
     private AHRS navx;
-    private double leftWheelDistance, rightWheelDistance, totalDistance;
 
     public Drivetrain(WPI_TalonSRX leftDrive, WPI_TalonSRX rightDrive, AHRS navx) {
         leftDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
         rightDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
         drive = new DifferentialDrive(leftDrive, rightDrive);
-        this.leftDrive = leftDrive;
         this.rightDrive = rightDrive;
         this.navx = navx;
-        leftWheelDistance = 0.0;
-        rightWheelDistance = 0.0;
-        totalDistance = 0.0;
 
         setOrientation(0.0);
     }
@@ -117,18 +114,15 @@ public class Drivetrain {
     }
 
     public double getVelocity() {
-        double encoderScaling = 4096 / (6 * Math.PI * 0.02540);
-        double encoderVelocity = rightDrive.getSelectedSensorVelocity(0);
-
-        return encoderVelocity / encoderScaling;
+        double revolutions = rightDrive.getSelectedSensorVelocity(0) / 4096.0;
+        double velocity = revolutions * 6 * Math.PI * 0.02540;
+        return velocity;
     }
 
     public double getTotalDistance() {
-        double encoderScaling = 4096 / (6 * Math.PI * 0.02540);
-
-        double newRightDistance = rightDrive.getSelectedSensorPosition(0) / encoderScaling;
-
-        return newRightDistance;
+        double revolutions = rightDrive.getSelectedSensorPosition(0) / 4096.0;
+        double distance = revolutions * 6 * Math.PI * 0.02540;
+        return distance;
     }
 
     private void setOrientation(double orientation) {
