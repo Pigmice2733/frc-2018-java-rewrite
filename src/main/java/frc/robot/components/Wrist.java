@@ -36,11 +36,15 @@ public class Wrist {
 
         target = Target.START;
 
-        pidf = new PIDF(new Gains(0.0009, 0, 0.00005), new Bounds(-1, 1));
+        pidf = new PIDF(new Gains(0.0007, 0.000005, 0.00004), new Bounds(-1, 1));
     }
 
     public void resetTop() {
         motor.setSelectedSensorPosition(Target.START.value(), 0, 0);
+    }
+
+    public void resetDown() {
+        motor.setSelectedSensorPosition(Target.DOWN.value(), 0, 0);
     }
 
     private double getPosition() {

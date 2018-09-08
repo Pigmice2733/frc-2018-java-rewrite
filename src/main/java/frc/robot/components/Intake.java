@@ -13,6 +13,7 @@ public class Intake {
     };
 
     private Mode mode;
+    private double outtakeSpeed;
 
     public Intake(SpeedController leftMotor, SpeedController rightMotor, DoubleSolenoid solenoid) {
         this.leftMotor = leftMotor;
@@ -26,7 +27,8 @@ public class Intake {
             speed = 0.7;
             solenoid.set(DoubleSolenoid.Value.kForward);
         } else if (mode == Mode.OUTTAKE) {
-            speed = -0.6;
+            speed = -outtakeSpeed;
+            outtakeSpeed = 0.0;
             solenoid.set(DoubleSolenoid.Value.kReverse);
         } else {
             speed = 0.2;
@@ -43,7 +45,8 @@ public class Intake {
         this.mode = Mode.INTAKE;
     }
 
-    public void outtake() {
+    public void outtake(double speed) {
         this.mode = Mode.OUTTAKE;
+        this.outtakeSpeed = speed;
     }
 }

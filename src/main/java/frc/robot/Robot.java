@@ -19,7 +19,7 @@ import frc.robot.components.Wrist;
 import frc.robot.components.ManualElevator;
 // import frc.robot.components.ProfiledElevator;
 import frc.robot.auto.Forward;
-// import frc.robot.auto.CenterSwitch;
+import frc.robot.auto.CenterSwitch;
 
 public class Robot extends TimedRobot {
     private Drivetrain drivetrain;
@@ -36,10 +36,10 @@ public class Robot extends TimedRobot {
 
     private SendableChooser<AutoMode> autoChooser;
     private Forward autoForward;
-    // private CenterSwitch autoCenterSwitch;
+    private CenterSwitch autoCenterSwitch;
 
     private enum AutoMode {
-        NONE, FORWARD// , CENTER_SWITCH
+        NONE, FORWARD, CENTER_SWITCH
     }
 
     public void robotInit() {
@@ -78,18 +78,23 @@ public class Robot extends TimedRobot {
         xboxA = new JoystickButton(operatorJoystick, 4);
 
         autoChooser = new SendableChooser<AutoMode>();
-        autoChooser.addDefault("Drive Forward", AutoMode.FORWARD);
+        autoChooser.addObject("Drive Forward", AutoMode.FORWARD);
         autoChooser.addObject("None", AutoMode.NONE);
-        // autoChooser.addObject("Center Switch", AutoMode.CENTER_SWITCH);
+        autoChooser.addDefault("Center Switch", AutoMode.CENTER_SWITCH);
         SmartDashboard.putData("Auto Selector", autoChooser);
-        // autoCenterSwitch = new CenterSwitch(drivetrain, elevator, intake);
+        autoCenterSwitch = new CenterSwitch(drivetrain/* , elevator, intake */);
         autoForward = new Forward(drivetrain);
 
         setPeriod(0.02);
     }
 
+    public void teleopInit() {
+        wrist.resetDown();
+    }
+
     public void autonomousInit() {
         wrist.resetTop();
+        autoCenterSwitch.initialize();
     }
 
     public void teleopPeriodic() {
@@ -97,11 +102,17 @@ public class Robot extends TimedRobot {
         if (xboxB.get()) {
             intake.intake();
             wrist.setTarget(Wrist.Target.DOWN);
-        } else if (xboxX.get()) {
-            intake.outtake();
+        }
+
+        if (operatorJoystick.getRawAxis(3) > 0.55) {
+            intake.outtake(operatorJoystick.getRawAxis(3) * 2.0 - 1.0);
         }
 
         if (xboxA.get()) {
+            wrist.setTarget(Wrist.Target.DOWN);
+        }
+
+        if (operatorJoystick.getRawButton(6)) {
             wrist.setTarget(Wrist.Target.DOWN);
         }
 
@@ -120,13 +131,14 @@ public class Robot extends TimedRobot {
 
     public void autonomousPeriodic() {
         AutoMode autoMode = autoChooser.getSelected();
+
         if (autoMode == AutoMode.NONE) {
             return;
         }
 
-        // if (autoMode == AutoMode.CENTER_SWITCH) {
-        // autoCenterSwitch.update();
-        // }
+        if (autoMode == AutoMode.CENTER_SWITCH) {
+            autoCenterSwitch.update();
+        }
 
         if (autoMode == AutoMode.FORWARD) {
             autoForward.update();
